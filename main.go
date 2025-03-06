@@ -123,7 +123,7 @@ func main() {
 	}
 	go updater()
 
-	cors = getEnvWithDefaul("CORS", "*")
+	cors = getEnvWithDefault("CORS", "*")
 
 	// Get the HTTP server rollin'
 	log.Println("Server listening!")
