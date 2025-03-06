@@ -96,6 +96,16 @@ func updater() {
 	}
 }
 
+var cors string
+
+
+func getEnvWithDefault(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
 func main() {
 	// Initialize the database.
 	var err error
@@ -112,6 +122,8 @@ func main() {
 		}
 	}
 	go updater()
+
+	cors = getEnvWithDefaul("CORS", "*")
 
 	// Get the HTTP server rollin'
 	log.Println("Server listening!")
@@ -184,6 +196,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	ip := net.ParseIP(IPAddress)
 	if ip == nil {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Header().Set("Access-Control-Allow-Origin", cors)
 		w.Write(invalidIPBytes)
 		return
 	}
@@ -222,6 +235,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	// everything is the same if you do /8.8.8.8, /8.8.8.8/json or /8.8.8.8/geo.
 	if Which == "" || Which == "json" || Which == "geo" {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Access-Control-Allow-Origin", cors)
 		callback := r.URL.Query().Get("callback")
 		enableJSONP := callback != "" && len(callback) < 2000 && callbackJSONP.MatchString(callback)
 		if enableJSONP {
@@ -241,6 +255,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Header().Set("Access-Control-Allow-Origin", cors)
 		if val := nameToField[Which]; val != nil {
 			w.Write([]byte(val(d)))
 		} else {
