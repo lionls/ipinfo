@@ -98,6 +98,38 @@ func updater() {
 
 var cors string
 
+var eu = map[string]bool{
+	"AT": true,
+	"BE": true,
+	"BG": true,
+	"HR": true,
+	"CY": true,
+	"CZ": true,
+	"DK": true,
+	"EE": true,
+	"EL": true,
+	"FI": true,
+	"FR": true,
+	"DE": true,
+	"GR": true,
+	"HU": true,
+	"IE": true,
+	"IT": true,
+	"LV": true,
+	"LT": true,
+	"LU": true,
+	"MT": true,
+	"NL": true,
+	"PL": true,
+	"PT": true,
+	"RO": true,
+	"SK": true,
+	"SI": true,
+	"ES": true,
+	"SE": true,
+	// "GB": true,
+}
+
 
 func getEnvWithDefault(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
@@ -142,6 +174,7 @@ type dataStruct struct {
 	ContinentFull string `json:"continent_full"`
 	Loc           string `json:"loc"`
 	Postal        string `json:"postal"`
+	IsEU		  string `json:"is_eu"`
 }
 
 var nameToField = map[string]func(dataStruct) string{
@@ -154,6 +187,7 @@ var nameToField = map[string]func(dataStruct) string{
 	"continent_full": func(d dataStruct) string { return d.ContinentFull },
 	"loc":            func(d dataStruct) string { return d.Loc },
 	"postal":         func(d dataStruct) string { return d.Postal },
+	"is_eu":          func(d dataStruct) string { return d.IsEU },
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -227,8 +261,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		Region:        sd,
 		Continent:     record.Continent.Code,
 		ContinentFull: record.Continent.Names["en"],
-		Postal:        record.Postal.Code,
+		Postal:        record.Postal.Code,	
 		Loc:           fmt.Sprintf("%.4f,%.4f", record.Location.Latitude, record.Location.Longitude),
+		IsEU:          fmt.Sprintf("%t", eu[record.Country.IsoCode] == true),
 	}
 
 	// Since we don't have HTML output, nor other data from geo data,
